@@ -22,7 +22,11 @@ def extract(url):
 
     div = tree.xpath('//table[@class="masterresultstable"]\
         //div[@class="meshtext-wrapper-left"]')
-    div = div[0] if div is not []
+     
+    if div != []:
+        div = div[0]
+    else:
+        return
 
     typ = div.xpath('.//strong/text()')[0]
     items = div.xpath('.//li/text()')
@@ -33,6 +37,7 @@ def extract(url):
     final_data[img_no]['type'] = typ
     final_data[img_no]['items'] = items
     final_data[img_no]['img'] = domain + img
+    urllib.urlretrieve(domain+img, "/Users/RahulBaboota/Documents/TuringMachine/incubate/scraper/images/"+str(img_no)+".jpg")
     print final_data[img_no]
 
 
@@ -54,7 +59,11 @@ def main():
             extract(link)
 
 if __name__ == '__main__':
+
     main()
-    # print final_data
+    
+
     with open('data.json', 'w') as f:
         json.dump(final_data, f)
+
+
