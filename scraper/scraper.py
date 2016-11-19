@@ -2,9 +2,13 @@ from lxml import html
 import requests
 import re
 import json
+import urllib
 
 domain = 'https://openi.nlm.nih.gov/'
-url = 'https://openi.nlm.nih.gov/gridquery.php?q=&it=x,xg&sub=x'
+url_list = []
+for i in range(0,75):
+    url = 'https://openi.nlm.nih.gov/gridquery.php?q=&it=x,xg&sub=x&m='+str(1+100*i)+'&n='+str(100+100*i)
+    url_list.append(url)
 regex = re.compile(r"var oi = (.*);")
 final_data = {}
 img_no = 0
@@ -17,11 +21,13 @@ def extract(url):
     tree = html.fromstring(r.text)
 
     div = tree.xpath('//table[@class="masterresultstable"]\
-        //div[@class="meshtext-wrapper-left"]')[0]
+        //div[@class="meshtext-wrapper-left"]')
+    div = div[0] if div is not []
 
     typ = div.xpath('.//strong/text()')[0]
     items = div.xpath('.//li/text()')
     img = tree.xpath('//img[@id="theImage"]/@src')[0]
+
 
     final_data[img_no] = {}
     final_data[img_no]['type'] = typ
@@ -31,18 +37,21 @@ def extract(url):
 
 
 def main():
-    r = requests.get(url)
-    tree = html.fromstring(r.text)
+    for url in url_list :
+        r = requests.get(url)
+        tree = html.fromstring(r.text)
 
-    script = tree.xpath('//script[@language="javascript"]/text()')[0]
+        script = tree.xpath('//script[@language="javascript"]/text()')[0]
 
-    json_string = regex.findall(script)[0]
-    json_data = json.loads(json_string)
+        json_string = regex.findall(script)[0]
+        json_data = json.loads(json_string)
 
-    print 'extract'
-    links = [domain + x['nodeRef'] for x in json_data]
-    for link in links:
-        extract(link)
+        next_page_url = tree.xpath('//footer/a/@href')
+
+        print 'extract'
+        links = [domain + x['nodeRef'] for x in json_data]
+        for link in links:
+            extract(link)
 
 if __name__ == '__main__':
     main()
