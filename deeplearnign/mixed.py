@@ -90,13 +90,14 @@ net = get_vgg_model()
 
 labels = net['labels']
 
-g = tf.Graph()
+# g = tf.Graph()
 
-config = tf.ConfigProto()
-config.gpu_options.allow_growth = True
+# config = tf.ConfigProto()
+# config.gpu_options.allow_growth = True
 # session = tf.Session(config=config, ...)
+g = tf.get_default_graph()
 
-with tf.Session(graph=g,config=config) as sess, g.device('/cpu:0'):
+with tf.Session(graph=g) as sess, g.device('/cpu:0'):
     tf.import_graph_def(net['graph_def'], name='vgg')
     names = [op.name for op in g.get_operations()]
 
@@ -124,12 +125,14 @@ with tf.Session(graph=g,config=config) as sess, g.device('/cpu:0'):
 # img_4d = img.reshape(5,224,224,3)
 # img_4d = img[np.newaxis]
 # print img_4d.shape
+labels = np.array([[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0]])
 
 x = g.get_tensor_by_name(names[0] + ':0')
 softmax = g.get_tensor_by_name(names[-2] + ':0')
 # print softmax
 # To get the feature map
 for i in range(401,405):
+    x = g.get_tensor_by_name(names[0] + ':0')
     img=[]
     og = plt.imread("images/"+str(i)+".png")
     og = preprocess(og)
@@ -138,7 +141,7 @@ for i in range(401,405):
     # img_4d = img_4d.reshape((1,224,244,3))
     # img_4d = img[np.newaxis]
 
-    print img_4d.shape
+    print img_4d.shape , "Image Shape"
 
     with tf.Session(graph=g) as sess, g.device('/cpu:0'):
 
@@ -156,10 +159,11 @@ for i in range(401,405):
 
 
     new_input = content_features
-    print new_input.shape
+    new_input = new_input.reshape((new_input.shape[0],7*7*512))
+    print new_input.shape , "Feature Map Shape"
 
-    labels = np.array([[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0]])
-    print labels.shape
+    label = labels[i-401].reshape(1,5)
+    print label.shape
 
     n_input = 25088
     # The number of classes which the ConvNet has to classify into .
@@ -167,8 +171,6 @@ for i in range(401,405):
     # The number of neurons in the each Hidden Layer .
     n_hidden1 = 4096
     n_hidden2 = 4096
-
-    g = tf.get_default_graph()
 
     # Tensorflow Graph input .
     x = tf.placeholder("float", [None, n_input])
@@ -223,7 +225,7 @@ for i in range(401,405):
     # Y_pred = tf.nn.softmax(h_3)
     Y_pred = h_3
 
-    Cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(Y_pred, labels))
+    Cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(Y_pred, label))
     optimizer = tf.train.AdamOptimizer(0.001).minimize(Cost)
 
     #Monitor accuracy
@@ -233,23 +235,23 @@ for i in range(401,405):
     correct_prediction = tf.equal(predicted_y, actual_y)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
-    o = [op.name for op in g.get_operations()]
-    for i in o:
-        print i
+    # o = [op.name for op in g.get_operations()]
+    # for i in o:
+    #     print i
 
-    config = tf.ConfigProto()
-    config.gpu_options.allow_growth=True
+    # config = tf.ConfigProto()
+    # config.gpu_options.allow_growth=True
 
     saver = tf.train.Saver()
 
-    sess = tf.Session(config=config)
+    sess = tf.Session()
     sess.run(tf.initialize_all_variables())
 
     n_epochs=3
     # training
     for epoch in range(n_epochs):
-        sess.run(optimizer, feed_dict={x: new_input, y:labels})
+        sess.run(optimizer, feed_dict={x: new_input, y:label})
 
 
         print str(epoch) + "-------------------------------------"
-        print(sess.run(accuracy, feed_dict={x: new_input,y: labels}))
+        print(sess.run(accuracy, feed_dict={x: new_input,y: label}))
