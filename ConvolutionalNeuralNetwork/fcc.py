@@ -6,7 +6,7 @@ fileObject = open(file_Name,'r')
 # load the object from the file into var b
 new_input = pickle.load(fileObject)
 print new_input.shape
-new_input = new_input.reshape((new_input.shape[0],100352))
+new_input = new_input.reshape((new_input.shape[0],25088))
 print new_input.shape
 
 labels = np.array([[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0]])
@@ -14,7 +14,7 @@ print labels.shape
 #
 # Initialising the network parameters .
 # The dimensions of the feature map for each image coming out of VGG Net flattened to a coloumn vector .
-n_input = 401408
+n_input = 25088
 # The number of classes which the ConvNet has to classify into .
 n_classes = 5
 # The number of neurons in the each Hidden Layer .
@@ -90,10 +90,12 @@ o = [op.name for op in g.get_operations()]
 for i in o:
     print i
 
+config = tf.ConfigProto()
+config.gpu_options.allow_growth=True
 
 saver = tf.train.Saver()
 
-sess = tf.Session()
+sess = tf.Session(config=config)
 sess.run(tf.initialize_all_variables())
 
 n_epochs=3

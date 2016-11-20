@@ -6,23 +6,24 @@ import urllib
 
 domain = 'https://openi.nlm.nih.gov/'
 url_list = []
-for i in range(0,75):
+for i in range(4,75):
     url = 'https://openi.nlm.nih.gov/gridquery.php?q=&it=x,xg&sub=x&m='+str(1+100*i)+'&n='+str(100+100*i)
     url_list.append(url)
 regex = re.compile(r"var oi = (.*);")
 final_data = {}
-img_no = 0
+img_no = 400
 
 
 def extract(url):
     global img_no
+
     img_no += 1
     r = requests.get(url)
     tree = html.fromstring(r.text)
 
     div = tree.xpath('//table[@class="masterresultstable"]\
         //div[@class="meshtext-wrapper-left"]')
-     
+
     if div != []:
         div = div[0]
     else:
@@ -37,7 +38,9 @@ def extract(url):
     final_data[img_no]['type'] = typ
     final_data[img_no]['items'] = items
     final_data[img_no]['img'] = domain + img
-    urllib.urlretrieve(domain+img, "/Users/RahulBaboota/Documents/TuringMachine/incubate/scraper/images/"+str(img_no)+".jpg")
+    urllib.urlretrieve(domain+img, "/home/ayush/Documents/incubate_new/deeplearnign/images/"+str(img_no)+".png")
+    with open('data.json', 'w') as f:
+        json.dump(final_data, f)
     print final_data[img_no]
 
 
@@ -61,9 +64,3 @@ def main():
 if __name__ == '__main__':
 
     main()
-    
-
-    with open('data.json', 'w') as f:
-        json.dump(final_data, f)
-
-
