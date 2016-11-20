@@ -111,6 +111,7 @@ for i in range(401,402):
     og = preprocess(og)
     img.append(og)
 
+
 img = np.array(img)
 print img.shape
 # plt.imshow(og)
