@@ -92,7 +92,11 @@ labels = net['labels']
 
 g = tf.Graph()
 
-with tf.Session(graph=g) as sess, g.device('/cpu:0'):
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+# session = tf.Session(config=config, ...)
+
+with tf.Session(graph=g,config=config) as sess, g.device('/gpu'):
     tf.import_graph_def(net['graph_def'], name='vgg')
     names = [op.name for op in g.get_operations()]
 
@@ -102,8 +106,8 @@ for i in names:
 
 #
 img=[]
-for i in range(1,6):
-    og = plt.imread("images/xray_"+str(i)+".png")
+for i in range(401,402):
+    og = plt.imread("images/"+str(i)+".png")
     og = preprocess(og)
     img.append(og)
 
@@ -125,7 +129,8 @@ x = g.get_tensor_by_name(names[0] + ':0')
 softmax = g.get_tensor_by_name(names[-2] + ':0')
 # print softmax
 # To get the feature map
-with tf.Session(graph=g) as sess, g.device('/cpu:0'):
+with tf.Session(graph=g) as sess, g.device('/gpu'):
+
     content_layer = 'vgg/pool5:0'
     content_features= g.get_tensor_by_name(content_layer).eval(
             session=sess,
