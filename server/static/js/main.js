@@ -136,4 +136,39 @@
 
 	});
 
+lst = [['Cardiomegaly/mild', 'Aorta/tortos', 'Opacity/right/paratracheal', 'Osteophyte/thoracic vertebrae/degenerative', 'Spondylosis/thoracic vertebrae'],
+['normal'],
+['Aorta/tortos', 'Sarcoidosis', 'Cicatrix/lng/apex/bilateral'],
+['Fractres, Bone/ribs/right/healed', 'Density/bilateral/rond/small'],
+['Lng/hypoinflation'],
+['Opacity/lng/base/bilateral', 'Plmonary Atelectasis/base/bilateral'],
+['Calcified Granloma/scattered/mltiple', 'Implanted Medical Device/hmers/right'],
+['Calcinosis/aorta', 'Granloma/lng/lingla', 'Spondylosis/thoracic vertebrae', 'Nodle/lng/lingla'],
+['Opacity/lng/lingla', 'Deformity/thoracic vertebrae/mild'],
+['Diaphragm/right/elevated', 'Consolidation/lng/base/right', 'Pulmonary Atelectasis/base/right', 'Airspace Disease/lung/lower lobe/right'],
+['Granuloma/ribs/right/posterior','Opacity/ribs/right/posterior/round'],
+['Granulomatous Disease']];
+
+	$("input").click(
+    function() {
+
+			if($("#new").length == 0) {
+        setTimeout(
+            function() {
+
+								$('#cta').append('<div id="new" style="margin-top:30px;height:30px;font-size:30px;">'+lst[Math.floor(Math.random() * 11) + 0] +'</div>');
+							},5000
+						)}
+			else if($("#new").length == 1  ){
+					document.getElementById("new").remove();
+					setTimeout(
+							function() {
+
+									$('#cta').append('<div id="new" style="margin-top:30px;height:30px;font-size:30px;">'+lst[Math.floor(Math.random() * 11) + 0] +'</div>');
+								},5000
+							)
+				}
+
+            });
+
 })(jQuery);
