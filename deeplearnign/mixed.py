@@ -95,7 +95,7 @@ labels = net['labels']
 # config = tf.ConfigProto()
 # config.gpu_options.allow_growth = True
 # session = tf.Session(config=config, ...)
-g = tf.get_default_graph()
+g1 = tf.graph()
 
 with tf.Session(graph=g) as sess, g.device('/cpu:0'):
     tf.import_graph_def(net['graph_def'], name='vgg')
@@ -125,14 +125,15 @@ with tf.Session(graph=g) as sess, g.device('/cpu:0'):
 # img_4d = img.reshape(5,224,224,3)
 # img_4d = img[np.newaxis]
 # print img_4d.shape
-labels = np.array([[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0]])
 
-x = g.get_tensor_by_name(names[0] + ':0')
-softmax = g.get_tensor_by_name(names[-2] + ':0')
+labels = np.array([[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0]])
+
+x = g1.get_tensor_by_name(names[0] + ':0')
+softmax = g1.get_tensor_by_name(names[-2] + ':0')
 # print softmax
 # To get the feature map
-for i in range(401,405):
-    x = g.get_tensor_by_name(names[0] + ':0')
+for i in range(401,411):
+    x = g1.get_tensor_by_name(names[0] + ':0')
     img=[]
     og = plt.imread("images/"+str(i)+".png")
     og = preprocess(og)
@@ -143,11 +144,11 @@ for i in range(401,405):
 
     print img_4d.shape , "Image Shape"
 
-    with tf.Session(graph=g) as sess, g.device('/cpu:0'):
+    with tf.Session(graph=g1) as sess, g1.device('/cpu:0'):
 
 
             content_layer = 'vgg/pool5:0'
-            content_features= g.get_tensor_by_name(content_layer).eval(
+            content_features= g1.get_tensor_by_name(content_layer).eval(
                     session=sess,
                     feed_dict={x: img_4d,
                         'vgg/dropout_1/random_uniform:0': [[1.0]],
@@ -163,7 +164,7 @@ for i in range(401,405):
     print new_input.shape , "Feature Map Shape"
 
     label = labels[i-401].reshape(1,5)
-    print label.shape
+    print label.shape , "Label Shape"
 
     n_input = 25088
     # The number of classes which the ConvNet has to classify into .
@@ -253,5 +254,8 @@ for i in range(401,405):
         sess.run(optimizer, feed_dict={x: new_input, y:label})
 
 
-        print str(epoch) + "-------------------------------------"
-        print(sess.run(accuracy, feed_dict={x: new_input,y: label}))
+        print str(epoch) + "Learning Conv5/1.0"
+        print str(epoch) + "Learning Conv5/2.0"
+        print str(epoch) + "Learning Conv5/3.0"
+        print str(epoch) + "Learning Conv5/4.0"
+        # print(sess.run(accuracy, feed_dict={x: new_input,y: label}))

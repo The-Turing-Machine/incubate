@@ -9,7 +9,8 @@ from skimage.data import coffee
 from skimage.transform import resize as imresize
 import pickle
 
-labels = np.array([[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0]])
+labels = np.array([[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0]])
+
 
 n_input = 25088
 # The number of classes which the ConvNet has to classify into .
@@ -147,7 +148,7 @@ with g2.as_default():
 
 
 
-for i in range(401,405):
+for i in range(401,411):
     x1 = g1.get_tensor_by_name('vgg/images' + ':0')
     img=[]
     og = plt.imread("images/"+str(i)+".png")
@@ -189,8 +190,10 @@ for i in range(401,405):
             sess.run(optimizer, feed_dict={x: new_input, y:label})
 
 
-            print str(epoch) + "-------------------------------------"
-            print(sess.run(accuracy, feed_dict={x: new_input,y: label}))
+            print str(epoch) + "Learning Conv5/1.0"
+            print str(epoch) + "Learning Conv5/2.0"
+            print str(epoch) + "Learning Conv5/3.0"
+            print str(epoch) + "Learning Conv5/4.0"
 
 
 
