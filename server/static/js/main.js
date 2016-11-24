@@ -157,7 +157,7 @@ lst = [['Cardiomegaly/mild', 'Aorta/tortos', 'Opacity/right/paratracheal', 'Oste
             function() {
 
 								$('#cta').append('<div id="new" style="margin-top:30px;height:30px;font-size:30px;">'+lst[Math.floor(Math.random() * 11) + 0] +'</div>');
-							},5000
+							},10000
 						)}
 			else if($("#new").length == 1  ){
 					document.getElementById("new").remove();
@@ -165,7 +165,7 @@ lst = [['Cardiomegaly/mild', 'Aorta/tortos', 'Opacity/right/paratracheal', 'Oste
 							function() {
 
 									$('#cta').append('<div id="new" style="margin-top:30px;height:30px;font-size:30px;">'+lst[Math.floor(Math.random() * 11) + 0] +'</div>');
-								},5000
+								},10000
 							)
 				}
 

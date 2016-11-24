@@ -9,15 +9,15 @@ from skimage.data import coffee
 from skimage.transform import resize as imresize
 import pickle
 
-labels = np.array([[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0]])
+labels = np.array([[1,0,0,0,0],[0,1,0,0,0],[0,1,0,0,0],[0,1,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[0,1,0,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,1,0,0,0],[1,0,0,0,0],[0,0,0,1,0],[0,0,0,1,0],[0,1,0,0,0],[0,0,0,0,1],[0,0,0,1,0],[0,0,0,0,1],[0,0,0,0,1],[0,0,1,0,0],[1,0,0,0,0],[0,1,0,0,0],[0,0,0,1,0],[0,0,0,1,0],[0,0,1,0,0],[0,0,0,0,1],[0,0,0,0,1],[0,0,1,0,0],[0,0,1,0,0],[1,0,0,0,0],[0,0,1,0,0],[0,0,0,1,0],[0,0,0,0,1],[0,1,0,0,0],[0,0,0,1,0],[0,0,0,0,1],[1,0,0,0,0],[0,1,0,0,0],[1,0,0,0,0]])
 
 
 n_input = 25088
 # The number of classes which the ConvNet has to classify into .
 n_classes = 5
 # The number of neurons in the each Hidden Layer .
-n_hidden1 = 4096
-n_hidden2 = 4096
+n_hidden1 = 500
+n_hidden2 = 500
 
 def get_vgg_model():
     # download('https://s3.amazonaws.com/cadl/models/vgg16.tfmodel')
@@ -75,7 +75,7 @@ g1 = tf.Graph()
 with tf.Session(graph=g1) as sess, g1.device('/cpu:0'):
     tf.import_graph_def(net['graph_def'], name='vgg')
     names = [op.name for op in g1.get_operations()]
-print names
+# print names
 
 g2 = tf.Graph()
 with g2.as_default():
@@ -134,7 +134,7 @@ with g2.as_default():
     Y_pred = h_3
 
     Cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(Y_pred, y))
-    optimizer = tf.train.AdamOptimizer(0.001).minimize(Cost)
+    optimizer = tf.train.AdamOptimizer(0.01).minimize(Cost)
 
     #Monitor accuracy
     predicted_y = tf.argmax(Y_pred, 1)
@@ -144,11 +144,11 @@ with g2.as_default():
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
 
     names = [op.name for op in g2.get_operations()]
-    print names
+    # print names
 
 
 
-for i in range(401,411):
+for i in range(401,439):
     x1 = g1.get_tensor_by_name('vgg/images' + ':0')
     img=[]
     og = plt.imread("images/"+str(i)+".png")
@@ -160,7 +160,7 @@ for i in range(401,411):
 
     print img_4d.shape , "Image Shape"
 
-    with tf.Session(graph=g1) as sess, g1.device('/cpu:0'):
+    with tf.Session(graph=g1) as sess, g1.device('/gpu:0'):
 
 
             content_layer = 'vgg/pool5:0'
@@ -181,7 +181,7 @@ for i in range(401,411):
     label = labels[i-401].reshape(1,5)
     print label.shape
 
-    with tf.Session(graph=g2) as sess, g2.device('/cpu:0'):
+    with tf.Session(graph=g2) as sess, g2.device('/gpu:0'):
         sess.run(tf.initialize_all_variables())
         n_epochs=3
         # training
@@ -189,11 +189,5 @@ for i in range(401,411):
 
             sess.run(optimizer, feed_dict={x: new_input, y:label})
 
-
-            print str(epoch) + "Learning Conv5/1.0"
-            print str(epoch) + "Learning Conv5/2.0"
-            print str(epoch) + "Learning Conv5/3.0"
-            print str(epoch) + "Learning Conv5/4.0"
-
-
-
+        # print str(epoch) + "-------------------------------------"
+        print(sess.run(accuracy, feed_dict={x: new_input,y: label}))
